@@ -1,0 +1,67 @@
+#!markdown
+
+Read input from files
+
+#!csharp
+
+#!value --from-file input12021.txt --name input12021
+#!value --from-file input1.txt --name input1
+
+#!markdown
+
+Helpers
+
+#!csharp
+
+using System.Linq;
+
+int[] ParseInput(string[] raw){
+    return raw.Select(v=> int.Parse(v)).ToArray();
+}
+
+int[] ParseInput(string raw){
+    return ParseInput(raw.Split('\n')).ToArray();
+}
+
+#!markdown
+
+DAY 1 part 1 2021
+---
+A little warm up
+
+#!csharp
+
+#!share input12021 --from value
+var day1 = ParseInput(input1);
+var result = day1.Skip(1).Aggregate((0, day1[0]), (total, next) =>  (next > total.Item2 ? ++total.Item1 : total.Item1, next));
+
+result.Item1
+
+#!markdown
+
+DAY 1 part 2 2021
+---
+
+#!csharp
+
+#!share input12021 --from value
+var day1 = ParseInput(input1);
+var count = 0;
+for(var i = 3; i < day1.Length; i++)
+{
+    var triplet1 = day1[(i-3)..(i)];
+    var triplet2 = day1[(i-2)..(i+1)];
+    count = triplet2.Sum() > triplet1.Sum() ? ++count : count;
+}
+
+count
+
+#!markdown
+
+Day 1 part 1 2022
+
+#!csharp
+
+#!share input1 --from value
+
+var day1 = ParseInput(input1);
