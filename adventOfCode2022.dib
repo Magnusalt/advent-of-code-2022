@@ -32,7 +32,7 @@ A little warm up
 #!csharp
 
 #!share input12021 --from value
-var day1 = ParseInput(input1);
+var day1 = ParseInput(input12021);
 var result = day1.Skip(1).Aggregate((0, day1[0]), (total, next) =>  (next > total.Item2 ? ++total.Item1 : total.Item1, next));
 
 result.Item1
@@ -45,7 +45,7 @@ DAY 1 part 2 2021
 #!csharp
 
 #!share input12021 --from value
-var day1 = ParseInput(input1);
+var day1 = ParseInput(input12021);
 var count = 0;
 for(var i = 3; i < day1.Length; i++)
 {
@@ -64,4 +64,4 @@ Day 1 part 1 2022
 
 #!share input1 --from value
 
-var day1 = ParseInput(input1);
+//var day1 = ParseInput(input1);
