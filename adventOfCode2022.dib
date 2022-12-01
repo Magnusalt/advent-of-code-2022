@@ -26,7 +26,6 @@ int[] ParseInput(string raw){
 #!markdown
 
 DAY 1 part 1 2021
----
 A little warm up
 
 #!csharp
@@ -40,7 +39,6 @@ result.Item1
 #!markdown
 
 DAY 1 part 2 2021
----
 
 #!csharp
 
@@ -64,4 +62,47 @@ Day 1 part 1 2022
 
 #!share input1 --from value
 
-//var day1 = ParseInput(input1);
+var day1 = input1.Split("\r\n");
+var most = 0;
+var current = 0;
+foreach(var cal in day1)
+{
+    if(string.IsNullOrEmpty(cal))
+    {
+        most = current > most ? current : most;
+        current = 0;
+    }
+    else
+    {
+        current += int.Parse(cal);
+    }
+}
+most
+
+#!csharp
+
+#!share input1 --from value
+
+var day1 = input1.Split("\r\n");
+var most = new int[]{0,0,0};
+var current = 0;
+foreach(var cal in day1)
+{
+    if(string.IsNullOrEmpty(cal))
+    {
+        for(var i = 0; i < 3; i++)
+        {
+            if(current > most[i])
+            {
+                most[i] = current;
+                break;
+            }
+        }
+        current = 0;
+    }
+    else
+    {
+        current += int.Parse(cal);
+    }
+}
+most.Sum()
