@@ -6,6 +6,7 @@ Read input from files
 
 #!value --from-file input1.txt --name input1
 #!value --from-file input2.txt --name input2
+#!value --from-file input3.txt --name input3
 
 #!markdown
 
@@ -139,7 +140,6 @@ res
 
 #!javascript
 
-#!js
 #!share input2 --from value
 
 var input = input2.split("\r\n");
@@ -156,3 +156,73 @@ var rules = {
 };
 var result = input.reduce((sum, next) =>sum + rules[next], 0);
 console.log(result)
+
+#!markdown
+
+Day 3 part1
+
+#!csharp
+
+#!share input3 --from value
+
+var input = GetLines(input3);
+var prioSum = 0;
+foreach(var rucksack in input)
+{
+    var size = rucksack.Length;
+    var compartment1 = rucksack.Substring(0, size/2);
+    var compartment2 = rucksack.Substring(size/2);
+
+    foreach(var item in compartment2)
+    {
+        if(compartment1.Contains(item))
+        {
+            if(item < 91)
+            {
+                var prio = item - 65 + 27;
+                prioSum += prio;
+                break;
+            }
+            if(item > 96)
+            {
+                var prio = item - 96;
+                prioSum += prio;
+                break;
+            }
+        }
+    }
+}
+
+prioSum
+
+#!markdown
+
+Day 3 Part 2
+
+#!csharp
+
+#!share input3 --from value
+
+var input = GetLines(input3);
+var prioSum = 0;
+foreach(var group in input.Chunk(3))
+{
+    var intersection = group.First().ToList();
+    foreach(var rucksack in group.Skip(1))
+    {
+        intersection = intersection.Intersect(rucksack).ToList();
+    }
+    var item = intersection.Single();
+    if(item < 91)
+    {
+        var prio = item - 65 + 27;
+        prioSum += prio;
+    }
+    if(item > 96)
+    {
+        var prio = item - 96;
+        prioSum += prio;
+    }
+}
+
+prioSum
