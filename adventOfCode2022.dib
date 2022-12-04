@@ -7,6 +7,7 @@ Read input from files
 #!value --from-file input1.txt --name input1
 #!value --from-file input2.txt --name input2
 #!value --from-file input3.txt --name input3
+#!value --from-file input4.txt --name input4
 
 #!markdown
 
@@ -226,3 +227,53 @@ foreach(var group in input.Chunk(3))
 }
 
 prioSum
+
+#!markdown
+
+Day 4 Part 1
+
+#!csharp
+
+#!share input4 --from value
+
+var input = GetLines(input4);
+var count = 0;
+foreach(var cleaningTasks in input)
+{
+    
+    var sections = cleaningTasks.Split(',').SelectMany(s => s.Split('-').Select(s=>int.Parse(s))).ToList();
+    var first = new HashSet<int>(Enumerable.Range(sections[0], sections[1] - sections[0] + 1).ToList());
+    var second = new HashSet<int>(Enumerable.Range(sections[2], sections[3] - sections[2] + 1).ToList());
+    
+    if(first.IsSubsetOf(second) || second.IsSubsetOf(first))
+    {
+        count++;
+    }
+
+}
+count
+
+#!markdown
+
+Day 4 part 2
+
+#!csharp
+
+#!share input4 --from value
+
+var input = GetLines(input4);
+var count = 0;
+foreach(var cleaningTasks in input)
+{
+    
+    var sections = cleaningTasks.Split(',').SelectMany(s => s.Split('-').Select(s=>int.Parse(s))).ToList();
+    var first = new HashSet<int>(Enumerable.Range(sections[0], sections[1] -sections[0] + 1).ToList());
+    var second = new HashSet<int>(Enumerable.Range(sections[2], sections[3] -sections[2] + 1).ToList());
+    
+    if(first.Overlaps(second) || second.Overlaps(first))
+    {
+        count++;
+    }
+
+}
+count
