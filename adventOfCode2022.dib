@@ -8,6 +8,7 @@ Read input from files
 #!value --from-file input2.txt --name input2
 #!value --from-file input3.txt --name input3
 #!value --from-file input4.txt --name input4
+#!value --from-file input5.txt --name input5
 
 #!markdown
 
@@ -277,3 +278,159 @@ foreach(var cleaningTasks in input)
 
 }
 count
+
+#!markdown
+
+Day 5 Part 1
+
+#!csharp
+
+#!share input5 --from value
+
+var input = GetLines(input5);
+var stacks = new Dictionary<int, Stack<char>>();
+
+foreach(var row in input)
+{
+    if(row.StartsWith(" 1"))
+    {
+        var tempStacks = new Dictionary<int, Stack<char>>();
+        foreach(var s in stacks)
+        {
+            while(s.Value.Count > 0)
+            {
+                if(!tempStacks.ContainsKey(s.Key))
+                {
+                    tempStacks[s.Key] = new Stack<char>();
+                }
+                tempStacks[s.Key].Push(s.Value.Pop());
+            }
+        }
+        stacks = tempStacks;
+        continue;
+    }
+    if(string.IsNullOrEmpty(row))
+    {
+        continue;
+    }
+
+    if(!row.StartsWith("move"))
+    {
+        var crates = row.Split(' ');
+        var i = 0;
+        var stackIndex = 0;
+        while(i < crates.Length)
+        {
+            if(string.IsNullOrEmpty(crates[i]))
+            {
+                i += 4;
+            }
+            else
+            {
+                if(!stacks.ContainsKey(stackIndex))
+                {
+                    stacks[stackIndex] = new Stack<char>();
+                }
+                stacks[stackIndex].Push(crates[i][1]);
+                i++;
+            }
+            stackIndex++;
+        }
+    }
+    else
+    {
+        var instructions = row.Split(' ');
+        var count = int.Parse(instructions[1]);
+        var source = int.Parse(instructions[3]) - 1;
+        var destination = int.Parse(instructions[5]) - 1;
+
+        for(var x = 0; x < count; x++)
+        {
+            var itemToMove = stacks[source].Pop();
+            stacks[destination].Push(itemToMove);
+        }
+    }
+}
+
+display(new string(stacks.OrderBy(s=>s.Key).Select(s=>s.Value.Pop()).ToArray()));
+
+#!markdown
+
+Day 5 Part 2
+
+#!csharp
+
+#!share input5 --from value
+
+var input = GetLines(input5);
+var stacks = new Dictionary<int, Stack<char>>();
+
+foreach(var row in input)
+{
+    if(row.StartsWith(" 1"))
+    {
+        var tempStacks = new Dictionary<int, Stack<char>>();
+        foreach(var s in stacks)
+        {
+            while(s.Value.Count > 0)
+            {
+                if(!tempStacks.ContainsKey(s.Key))
+                {
+                    tempStacks[s.Key] = new Stack<char>();
+                }
+                tempStacks[s.Key].Push(s.Value.Pop());
+            }
+        }
+        stacks = tempStacks;
+        continue;
+    }
+    if(string.IsNullOrEmpty(row))
+    {
+        continue;
+    }
+
+    if(!row.StartsWith("move"))
+    {
+        var crates = row.Split(' ');
+        var i = 0;
+        var stackIndex = 0;
+        while(i < crates.Length)
+        {
+            if(string.IsNullOrEmpty(crates[i]))
+            {
+                i += 4;
+            }
+            else
+            {
+                if(!stacks.ContainsKey(stackIndex))
+                {
+                    stacks[stackIndex] = new Stack<char>();
+                }
+                stacks[stackIndex].Push(crates[i][1]);
+                i++;
+            }
+            stackIndex++;
+        }
+    }
+    else
+    {
+        var instructions = row.Split(' ');
+        var count = int.Parse(instructions[1]);
+        var source = int.Parse(instructions[3]) - 1;
+        var destination = int.Parse(instructions[5]) - 1;
+
+        var itemsToMove = new Stack<char>();
+        for(var x = 0; x < count; x++)
+        {
+            itemsToMove.Push(stacks[source].Pop());
+        }
+        while(itemsToMove.Count > 0)
+        {
+            var item = itemsToMove.Pop();
+            stacks[destination].Push(item);
+        }
+
+    }
+}
+
+display(new string(stacks.OrderBy(s=>s.Key).Select(s=>s.Value.Pop()).ToArray()));
