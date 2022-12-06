@@ -9,6 +9,7 @@ Read input from files
 #!value --from-file input3.txt --name input3
 #!value --from-file input4.txt --name input4
 #!value --from-file input5.txt --name input5
+#!value --from-file input6.txt --name input6
 
 #!markdown
 
@@ -434,3 +435,47 @@ foreach(var row in input)
 }
 
 display(new string(stacks.OrderBy(s=>s.Key).Select(s=>s.Value.Pop()).ToArray()));
+
+#!markdown
+
+Day 6 Part 1
+
+#!csharp
+
+#!share input6 --from value
+
+var input = input6;
+
+var result = 0;
+for(var i = 3; i < input.Length; i++)
+{
+    var substring = input[(i-3)..(i+1)];
+    if(substring.Distinct().Count() == 4)
+    {
+        result = i + 1;
+        break;
+    }
+}
+result
+
+#!markdown
+
+Day 6 Part 2
+
+#!csharp
+
+#!share input6 --from value
+
+var input = input6;
+
+var result = 0;
+for(var i = 13; i < input.Length; i++)
+{
+    var substring = input[(i-13)..(i+1)];
+    if(substring.Distinct().Count() == 14)
+    {
+        result = i + 1;
+        break;
+    }
+}
+result
