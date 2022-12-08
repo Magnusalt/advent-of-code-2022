@@ -10,6 +10,7 @@ Read input from files
 #!value --from-file input4.txt --name input4
 #!value --from-file input5.txt --name input5
 #!value --from-file input6.txt --name input6
+#!value --from-file input7.txt --name input7
 
 #!markdown
 
@@ -479,3 +480,95 @@ for(var i = 13; i < input.Length; i++)
     }
 }
 result
+
+#!markdown
+
+Day 7 Build directory tree
+
+#!csharp
+
+#!share input7 --from value
+
+class Node
+{
+    public Node(string name)
+    {
+        Name = name;
+        Id = Guid.NewGuid();
+    }
+    public Guid Id { get; }
+    public Node? Parent { get; set; }
+    public string Name { get; }
+    public List<Node>? Children { get; set; }
+    public long Size { get; set; }
+}
+    
+
+    var input = GetLines(input7);
+    var currentNode = new Node("/");
+    var directoryTracker = new Dictionary<Guid, long>();
+    foreach (var line in input.Skip(1))
+    {
+        var command = line.Split(' ');
+        if (command[0] == "$")
+        {
+            switch (command[1])
+            {
+                case "cd":
+                    if (command[2] == "..")
+                    {
+                        currentNode = currentNode.Parent;
+                    }
+                    else
+                    {
+                        currentNode = currentNode.Children.Single(n => n.Name == command[2]);
+                    }
+                    break;
+                case "ls":
+                    currentNode.Children = new List<Node>();
+                    break;
+            }
+        }
+        else
+        {
+            if (command[0] == "dir")
+            {
+                currentNode.Children.Add(new Node(command[1]) { Parent = currentNode });
+            }
+            else
+            {
+                var fileSize = long.Parse(command[0]);
+                currentNode.Children.Add(new Node(command[1]) { Parent = currentNode, Size = fileSize });
+                directoryTracker.TryGetValue(currentNode.Id, out var dirSize);
+                directoryTracker[currentNode.Id] = dirSize + fileSize;
+                var tempNode = currentNode;
+                while (tempNode.Name != "/")
+                {
+                    tempNode = tempNode.Parent;
+                    directoryTracker.TryGetValue(tempNode.Id, out var parentDirSize);
+                    directoryTracker[tempNode.Id] = parentDirSize + fileSize;
+                }
+            }
+        }
+    }
+    directoryTracker
+
+#!markdown
+
+Day 7 Part 1
+
+#!csharp
+
+var day7p1Result = directoryTracker.Where(kv => kv.Value < 100_000).Sum(kv => kv.Value);
+day7p1Result
+
+#!markdown
+
+Day 7 Part 2
+
+#!csharp
+
+var diskCapacity = 70_000_000;
+var unused = diskCapacity - directoryTracker.Max(kv => kv.Value);
+var minToIncreaseAboveThreshold = directoryTracker.Where(kv=>kv.Value + unused > 30_000_000).Min(kv=>kv.Value);
+minToIncreaseAboveThreshold

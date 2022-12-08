@@ -353,3 +353,4 @@ MigrationBackup/
 *csproj
 Program.cs
 .idea
+.vscode
