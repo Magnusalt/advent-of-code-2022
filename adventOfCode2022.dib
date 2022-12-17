@@ -1,3 +1,7 @@
+#!meta
+
+{"kernelInfo":{"defaultKernelName":null,"items":[{"name":"csharp","languageName":"C#","aliases":["c#","cs"]},{"name":"fsharp","languageName":"F#","aliases":["f#","fs"]},{"name":"pwsh","languageName":"PowerShell","aliases":["powershell"]},{"name":"javascript","languageName":"JavaScript","aliases":["js"]},{"name":"html","languageName":"HTML"},{"name":"sql","languageName":"SQL"},{"name":"kql","languageName":"KQL"},{"name":"mermaid","languageName":"Mermaid"},{"name":"httpRequest","languageName":"http"},{"name":"value"}]}}
+
 #!markdown
 
 Read input from files
@@ -10,6 +14,7 @@ Read input from files
 #!value --from-file input4.txt --name input4
 #!value --from-file input5.txt --name input5
 #!value --from-file input6.txt --name input6
+#!value --from-file input8.txt --name input8
 
 #!markdown
 
@@ -479,3 +484,131 @@ for(var i = 13; i < input.Length; i++)
     }
 }
 result
+
+#!markdown
+
+Day 8 Part 1
+
+#!csharp
+
+#!share input8 --from value 
+var input = GetLines(input8);
+
+var visibleFromEdge = new HashSet<(int x, int y)>();
+var xMax = input[0].Length - 1;
+var yMax = input.Length - 1;
+
+// look from top
+for(int x = 0; x < input[0].Length; x++)
+{
+    var highest =(char)('0'-1);
+    var y = 0;
+    var tree = input[y][x];
+    while(y < yMax)
+    {
+        if(tree > highest)
+        {
+            visibleFromEdge.Add((x,y));
+            highest = tree;
+        }
+        y++; 
+        tree= input[y][x];
+    }
+}
+// look from bottom
+for(int x = 0; x < input[0].Length; x++)
+{
+    var highest = (char)('0'-1);
+    var y = yMax;
+    var tree = input[y][x];
+    while(y > 0)
+    {
+        if(tree > highest)
+        {
+            visibleFromEdge.Add((x,y));
+            highest = tree;
+        }
+        y--;
+        tree= input[y][x];
+    }
+}
+// look from left
+for(int y = 0; y < input.Length; y++)
+{
+    var highest =(char)('0'-1);
+    var x = 0;
+    var tree = input[y][x];
+    while(x < xMax)
+    {
+        if(tree > highest)
+        {
+            visibleFromEdge.Add((x,y));
+            highest = tree;
+        }        x++;
+        tree= input[y][x];
+    }
+}
+// look from right
+for(int y = 0; y < input.Length; y++)
+{
+    var highest =(char)('0'-1);
+    var x = xMax;
+    var tree = input[y][x];
+    while(x > 0)
+    {
+        if(tree > highest)
+        {
+            visibleFromEdge.Add((x,y));
+            highest = tree;
+        }
+        x--;
+        tree= input[y][x]; 
+    }
+}
+visibleFromEdge.Count
+
+#!markdown
+
+Day 8 Part 2
+
+#!csharp
+
+var input = GetLines(input8);
+var yMax= input.Length;
+var xMax= input[0].Length;
+var scenicScore = 0;
+for(var y = 0; y < yMax; y++)
+{
+    for(var x = 0; x < xMax; x++)
+    {
+        display($"{x},{y}");
+        var treeHouse = input[y][x];
+        var viewDistanceUp = 0;
+        while(y - viewDistanceUp > 0 && input[y-viewDistanceUp][x] < treeHouse)
+        {
+            viewDistanceUp++;
+        }
+        var viewDistanceDown = 0;
+        while(y + viewDistanceDown < yMax && input[y+viewDistanceDown][x] < treeHouse)
+        {
+            viewDistanceDown++;
+        }
+        var viewDistanceLeft = 0;
+        while(x - viewDistanceLeft > 0 && input[y][x-viewDistanceLeft] < treeHouse)
+        {
+            viewDistanceLeft++;
+        }
+        var viewDistanceRight = 0;
+        while(x + viewDistanceRight < xMax && input[y][x+viewDistanceRight] < treeHouse)
+        {
+            viewDistanceRight++;
+        }
+        display($"{viewDistanceDown} * {viewDistanceUp} * {viewDistanceLeft} * {viewDistanceRight}");
+        var newScore = viewDistanceDown * viewDistanceUp * viewDistanceLeft * viewDistanceRight;
+        if(newScore > scenicScore)
+        {
+            scenicScore = newScore;
+        }
+    }
+}
+scenicScore
