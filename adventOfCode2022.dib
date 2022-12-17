@@ -578,7 +578,6 @@ var unused = diskCapacity - directoryTracker.Max(kv => kv.Value);
 var minToIncreaseAboveThreshold = directoryTracker.Where(kv=>kv.Value + unused > 30_000_000).Min(kv=>kv.Value);
 minToIncreaseAboveThreshold
 
-
 #!markdown
 
 Day 8 Part 1
@@ -675,31 +674,29 @@ for(var y = 0; y < yMax; y++)
 {
     for(var x = 0; x < xMax; x++)
     {
-        display($"{x},{y}");
-        var treeHouse = input[y][x];
-        var viewDistanceUp = 0;
-        while(y - viewDistanceUp > 0 && input[y-viewDistanceUp][x] < treeHouse)
+       var treeHouse = input[y][x];
+        var viewDistanceUp = y == 0 ? 0 : 1;
+        while (y - viewDistanceUp > 0 && input[y - viewDistanceUp][x] < treeHouse)
         {
             viewDistanceUp++;
         }
-        var viewDistanceDown = 0;
-        while(y + viewDistanceDown < yMax && input[y+viewDistanceDown][x] < treeHouse)
+        var viewDistanceDown = y == yMax - 1 ? 0 : 1;
+        while (y + viewDistanceDown < yMax-1 && input[y + viewDistanceDown][x] < treeHouse)
         {
             viewDistanceDown++;
         }
-        var viewDistanceLeft = 0;
-        while(x - viewDistanceLeft > 0 && input[y][x-viewDistanceLeft] < treeHouse)
+        var viewDistanceLeft = x == 0 ? 0 : 1;
+        while (x - viewDistanceLeft > 0 && input[y][x - viewDistanceLeft] < treeHouse)
         {
             viewDistanceLeft++;
         }
-        var viewDistanceRight = 0;
-        while(x + viewDistanceRight < xMax && input[y][x+viewDistanceRight] < treeHouse)
+        var viewDistanceRight = x == xMax - 1 ? 0 : 1;
+        while (x + viewDistanceRight < xMax-1 && input[y][x + viewDistanceRight] < treeHouse)
         {
             viewDistanceRight++;
         }
-        display($"{viewDistanceDown} * {viewDistanceUp} * {viewDistanceLeft} * {viewDistanceRight}");
         var newScore = viewDistanceDown * viewDistanceUp * viewDistanceLeft * viewDistanceRight;
-        if(newScore > scenicScore)
+        if (newScore > scenicScore)
         {
             scenicScore = newScore;
         }
