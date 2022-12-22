@@ -16,6 +16,7 @@ Read input from files
 #!value --from-file input6.txt --name input6
 #!value --from-file input7.txt --name input7
 #!value --from-file input8.txt --name input8
+#!value --from-file input9.txt --name input9
 
 #!markdown
 
@@ -703,3 +704,143 @@ for(var y = 0; y < yMax; y++)
     }
 }
 scenicScore
+
+#!markdown
+
+Day 9 Part 1
+
+#!csharp
+
+#!share input9 --from value
+
+var input = GetLines(input9);
+var tailUnique = new HashSet<(int, int)>();
+(int x, int y) hPos = (0, 0);
+(int x, int y) tPos = (0, 0);
+
+(int x, int y) Move((int x, int y) particle, string dir)
+{
+    switch (dir)
+    {
+        case "R":
+            return (particle.x + 1, particle.y);
+        case "L":
+            return (particle.x - 1, particle.y);
+        case "U":
+            return (particle.x, particle.y + 1);
+        case "D":
+            return (particle.x, particle.y - 1);
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+}
+
+foreach (var i in input)
+{
+    var movement = i.Split(' ');
+    var length = int.Parse(movement[1]);
+    var dir = movement[0];
+
+    for (var s = 0; s < length; s++)
+    {
+        hPos = Move(hPos, dir);
+
+        var h = new System.Numerics.Vector2(hPos.x, hPos.y);
+        var t = new System.Numerics.Vector2(tPos.x, tPos.y);
+        var distance = System.Numerics.Vector2.Distance(h, t);
+        if (distance == 2f)
+        {
+            tPos = Move(tPos, dir);
+        }
+        if (System.Math.Abs(distance - System.Math.Sqrt(5)) < 0.001)
+        {
+            tPos = Move(tPos, dir);
+            var diff = h - new System.Numerics.Vector2(tPos.x, tPos.y);
+            if (dir == "R" || dir == "L")
+            {
+                tPos = (tPos.x, tPos.y + (int)diff.Y);
+            }
+            if (dir == "U" || dir == "D")
+            {
+                tPos = (tPos.x + (int)diff.X, tPos.y);
+            }
+        }
+        tailUnique.Add(tPos);
+    }
+}
+
+var result = tailUnique.Count;
+result
+
+#!markdown
+
+Day 9 Part 2
+
+#!csharp
+
+#!share input9 --from value
+
+var input = GetLines(input9);
+var tailUnique = new HashSet<(int, int)>();
+var knots = Enumerable.Repeat<(int x, int y)>((0, 0), 10).ToArray();
+
+(int x, int y) Move((int x, int y) particle, string dir)
+{
+    switch (dir)
+    {
+        case "R":
+            return (particle.x + 1, particle.y);
+        case "L":
+            return (particle.x - 1, particle.y);
+        case "U":
+            return (particle.x, particle.y + 1);
+        case "D":
+            return (particle.x, particle.y - 1);
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+}
+
+foreach (var i in input)
+{
+    var movement = i.Split(' ');
+    var length = int.Parse(movement[1]);
+    var dir = movement[0];
+
+    for (var s = 0; s < length; s++)
+    {
+        knots[0] = Move(knots[0], dir);
+
+        for (int k = 1; k < knots.Length; k++)
+        {
+            var h = new System.Numerics.Vector2(knots[k - 1].x, knots[k - 1].y);
+            var t = new System.Numerics.Vector2(knots[k].x, knots[k].y);
+            var distance = System.Numerics.Vector2.Distance(h, t);
+            if (distance < 2)
+            {
+                continue;
+            }
+
+            var diff = h - t;
+
+            knots[k] = diff switch
+            {
+                { X: 1 or 2, Y: 1 or 2 } => (knots[k].x + 1, knots[k].y + 1),
+                { X: 1 or 2, Y: -1 or -2 } => (knots[k].x + 1, knots[k].y - 1),
+                { X: -1 or -2, Y: 1 or 2 } => (knots[k].x - 1, knots[k].y + 1),
+                { X: -1 or -2, Y: -1 or -2 } => (knots[k].x - 1, knots[k].y - 1),
+
+                { X: 0, Y: 2 } => (knots[k].x, knots[k].y + 1),
+                { X: 0, Y: -2 } => (knots[k].x, knots[k].y - 1),
+                { X: 2, Y: 0 } => (knots[k].x + 1, knots[k].y),
+                { X: -2, Y: 0 } => (knots[k].x - 1, knots[k].y),
+                _ => throw new Exception()
+            };
+        }
+
+        tailUnique.Add(knots.Last());
+    }
+}
+
+var result = tailUnique.Count;
+result
