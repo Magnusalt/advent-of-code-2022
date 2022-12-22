@@ -17,6 +17,7 @@ Read input from files
 #!value --from-file input7.txt --name input7
 #!value --from-file input8.txt --name input8
 #!value --from-file input9.txt --name input9
+#!value --from-file input10.txt --name input10
 
 #!markdown
 
@@ -844,3 +845,48 @@ foreach (var i in input)
 
 var result = tailUnique.Count;
 result
+
+#!markdown
+
+Day 10 part 1
+
+#!csharp
+
+#!share input10 --from value
+
+var input = GetLines(input10);
+
+var reg = 1;
+
+var cycleCount = 0;
+var checks = new Dictionary<int, int> { [20] = 0, [60] = 0, [100] = 0, [140] = 0, [180] = 0, [220] = 0 };
+foreach (var ins in input)
+{
+    if (checks.ContainsKey(cycleCount) && checks[cycleCount] == 0)
+    {
+        checks[cycleCount] = reg * cycleCount;
+    }
+    if (ins.StartsWith("noop"))
+    {
+        cycleCount++;
+    }
+    if (ins.StartsWith("addx"))
+    {
+        cycleCount += 1;
+
+        if (checks.ContainsKey(cycleCount) && checks[cycleCount] == 0)
+        {
+            checks[cycleCount] = reg * cycleCount;
+        }
+        cycleCount += 1;
+        if (checks.ContainsKey(cycleCount) && checks[cycleCount] == 0)
+        {
+            checks[cycleCount] = reg * cycleCount;
+        }
+
+        var v = int.Parse(ins.Split(' ')[1]);
+        reg += v;
+    }
+}
+var signalStrength = checks.Values.Sum();
+signalStrength
