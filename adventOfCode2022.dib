@@ -890,3 +890,54 @@ foreach (var ins in input)
 }
 var signalStrength = checks.Values.Sum();
 signalStrength
+
+#!markdown
+
+Day 10 Part 2
+
+#!csharp
+
+#!share input10 --from value
+
+var input = GetLines(input10);
+
+var reg = 1;
+
+var cycleCount = 0;
+
+var display = new ulong[6];
+var currentRow = 0;
+
+void Draw()
+{
+    if (Enumerable.Range(reg - 1, 3).Contains((cycleCount - 1) % 40))
+    {
+        display[currentRow] |= (1ul << 63) >> (cycleCount - 1) % 40;
+    }
+    if (cycleCount % 40 == 0)
+    {
+        currentRow++;
+    }
+}
+
+foreach (var ins in input)
+{
+    if (ins.StartsWith("noop"))
+    {
+        cycleCount++;
+        Draw();
+    }
+    if (ins.StartsWith("addx"))
+    {
+        cycleCount++;
+        Draw();
+        cycleCount++;
+        Draw();
+        var v = int.Parse(ins.Split(' ')[1]);
+        reg += v;
+    }
+}
+foreach (var row in display)
+{
+    System.Console.WriteLine(Convert.ToString((long)row, 2).Replace('0', ' ').Replace('1', '#'));
+}
