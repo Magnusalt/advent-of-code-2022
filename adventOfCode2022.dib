@@ -941,3 +941,150 @@ foreach (var row in display)
 {
     System.Console.WriteLine(Convert.ToString((long)row, 2).Replace('0', ' ').Replace('1', '#'));
 }
+
+#!markdown
+
+Day 11 part 1
+
+#!csharp
+
+public class Monkey1
+{
+    public Queue<int> Items { get; }
+    public Monkey1(List<int> items, Func<int, int> operation, Predicate<int> test)
+    {
+        Items = new Queue<int>(items);
+        Operation = operation;
+        Test = test;
+    }
+
+    public void AddItem(int item)
+    {
+        Items.Enqueue(item);
+    }
+
+    public Func<int, int> Operation { get; set; }
+    public Predicate<int> Test { get; }
+    public int Inspections { get; set; }
+}
+
+#!csharp
+
+ var monkey0 = new Monkey1(new List<int> { 65, 58, 93, 57, 66 }, i => i * 7, i => i % 19 == 0);
+var monkey1 = new Monkey1(new List<int> { 76, 97, 58, 72, 57, 92, 82 }, i => i + 4, i => i % 3 == 0);
+var monkey2 = new Monkey1(new List<int> { 90, 89, 96 }, i => i * 5, i => i % 13 == 0);
+var monkey3 = new Monkey1(new List<int> { 72, 63, 72, 99 }, i => i * i, i => i % 17 == 0);
+var monkey4 = new Monkey1(new List<int> { 65 }, i => i + 1, i => i % 2 == 0);
+var monkey5 = new Monkey1(new List<int> { 97, 71 }, i => i + 8, i => i % 11 == 0);
+var monkey6 = new Monkey1(new List<int> { 83, 68, 88, 55, 87, 67 }, i => i + 2, i => i % 5 == 0);
+var monkey7 = new Monkey1(new List<int> { 64, 81, 50, 96, 82, 53, 62, 92 }, i => i + 5, i => i % 7 == 0);
+
+var monkeys = new List<Monkey1> { monkey0, monkey1, monkey2, monkey3, monkey4, monkey5, monkey6, monkey7 };
+
+var throwTarget = new Dictionary<Monkey1, (Monkey1 testSucced, Monkey1 testFail)>
+{
+    [monkey0] = (monkey6, monkey4),
+    [monkey1] = (monkey7, monkey5),
+    [monkey2] = (monkey5, monkey1),
+    [monkey3] = (monkey0, monkey4),
+    [monkey4] = (monkey6, monkey2),
+    [monkey5] = (monkey7, monkey3),
+    [monkey6] = (monkey2, monkey1),
+    [monkey7] = (monkey3, monkey0)
+};
+
+
+for (int i = 0; i < 20; i++)
+{
+    foreach (var monkey in monkeys)
+    {
+        while (monkey.Items.TryDequeue(out int current))
+        {
+            monkey.Inspections++;
+            var worryLevel = monkey.Operation(current);
+            var bored = worryLevel / 3;
+            if (monkey.Test(bored))
+                throwTarget[monkey].testSucced.AddItem(bored);
+            else
+                throwTarget[monkey].testFail.AddItem(bored);
+        }
+    }
+}
+
+var result = monkeys.OrderByDescending(m => m.Inspections).Take(2).Aggregate(1, (a, m) => a * m.Inspections);
+result
+
+#!markdown
+
+Day 11 part 2
+
+#!csharp
+
+public class Monkey2
+{
+    public Queue<long> Items { get; }
+    public Monkey2(List<long> items, Func<long, long> operation, int divisor)
+    {
+        Items = new Queue<long>(items);
+        Operation = operation;
+        Divisor = divisor;
+        Test = i => i % divisor==0;
+    }
+
+    public void AddItem(long item)
+    {
+        Items.Enqueue(item);
+    }
+
+    public Func<long, long> Operation { get; set; }
+    public int Divisor { get; }
+    public Predicate<long> Test { get; }
+    public long Inspections { get; set; }
+}
+
+#!csharp
+
+#!time
+var monkey0 = new Monkey2(new List<long> { 65, 58, 93, 57, 66 }, i => i * 7, 19);
+var monkey1 = new Monkey2(new List<long> { 76, 97, 58, 72, 57, 92, 82 }, i => i + 4, 3);
+var monkey2 = new Monkey2(new List<long> { 90, 89, 96 }, i => i * 5, 13);
+var monkey3 = new Monkey2(new List<long> { 72, 63, 72, 99 }, i => i * i, 17);
+var monkey4 = new Monkey2(new List<long> { 65 }, i => i + 1, 2);
+var monkey5 = new Monkey2(new List<long> { 97, 71 }, i => i + 8, 11);
+var monkey6 = new Monkey2(new List<long> { 83, 68, 88, 55, 87, 67 }, i => i + 2, 5);
+var monkey7 = new Monkey2(new List<long> { 64, 81, 50, 96, 82, 53, 62, 92 }, i => i + 5, 7);
+
+var monkeys = new List<Monkey2> { monkey0, monkey1, monkey2, monkey3, monkey4, monkey5, monkey6, monkey7 };
+
+var throwTarget = new Dictionary<Monkey2, (Monkey2 testSucced, Monkey2 testFail)>
+{
+    [monkey0] = (monkey6, monkey4),
+    [monkey1] = (monkey7, monkey5),
+    [monkey2] = (monkey5, monkey1),
+    [monkey3] = (monkey0, monkey4),
+    [monkey4] = (monkey6, monkey2),
+    [monkey5] = (monkey7, monkey3),
+    [monkey6] = (monkey2, monkey1),
+    [monkey7] = (monkey3, monkey0)
+};
+var allDivisors = monkeys.Select(m=>m.Divisor).Aggregate(1, (a,d)=>a*d);
+
+for (int i = 0; i < 10000; i++)
+{
+    foreach (var monkey in monkeys)
+    {
+        while (monkey.Items.TryDequeue(out long current))
+        {
+            monkey.Inspections++;
+            var worryLevel = monkey.Operation(current);
+            worryLevel = worryLevel % allDivisors;
+            if (monkey.Test(worryLevel))
+                throwTarget[monkey].testSucced.AddItem(worryLevel);
+            else
+                throwTarget[monkey].testFail.AddItem(worryLevel);
+        }
+    }
+}
+
+var result = monkeys.OrderByDescending(m => m.Inspections).Take(2).Aggregate(1L, (a, m) => a * m.Inspections);
+result
