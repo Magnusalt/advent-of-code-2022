@@ -18,6 +18,7 @@ Read input from files
 #!value --from-file input8.txt --name input8
 #!value --from-file input9.txt --name input9
 #!value --from-file input10.txt --name input10
+#!value --from-file input12.txt --name input12
 
 #!markdown
 
@@ -1087,4 +1088,157 @@ for (int i = 0; i < 10000; i++)
 }
 
 var result = monkeys.OrderByDescending(m => m.Inspections).Take(2).Aggregate(1L, (a, m) => a * m.Inspections);
+result
+
+#!markdown
+
+Day 12 Part 1
+
+#!csharp
+
+    record Location(int X, int Y, Location parent);
+
+#!csharp
+
+#!share input12 --from value
+var map = GetLines(input12).Select(s => s.ToCharArray()).ToArray();
+var maxX = map[0].Length;
+var maxY = map.Length;
+
+int x = 0;
+int y = 0;
+    var discovered = new HashSet<(int x, int y)>();
+    var queue = new Queue<Location>();  
+
+foreach (var row in map)
+{
+    foreach (var col in row)
+    {
+        if (col == 'S')
+            goto STARTOFSEARCH;
+        x++;
+    }
+    y++;
+    x=0;
+}
+STARTOFSEARCH:
+
+    queue.Enqueue(new(x, y, null));
+    discovered.Add((x,y));
+
+IEnumerable<Location> GetEdges(Location node)
+{
+    var nodeValue = map[node.Y][node.X];
+    if (node.Y > 0 && (nodeValue == 'S' || (map[node.Y - 1][node.X] == 'E' ? 'z' : map[node.Y - 1][node.X]) - nodeValue <= 1))
+        yield return new(node.X, node.Y - 1, node);
+    if (node.Y < maxY - 1 && (nodeValue == 'S' || (map[node.Y + 1][node.X] == 'E' ? 'z' : map[node.Y + 1][node.X]) - nodeValue <= 1))
+        yield return new(node.X, node.Y + 1, node);
+    if (node.X > 0 && (nodeValue == 'S' || (map[node.Y][node.X - 1] == 'E' ? 'z' : map[node.Y][node.X - 1]) - nodeValue <= 1))
+        yield return new(node.X - 1, node.Y, node);
+    if (node.X < maxX - 1 && (nodeValue == 'S' || (map[node.Y][node.X + 1] == 'E' ? 'z' : map[node.Y][node.X + 1]) - nodeValue <= 1))
+        yield return new(node.X + 1, node.Y, node);
+}
+
+Location BFS()
+{
+    while (queue.Any())
+    {
+        var current = queue.Dequeue();
+        if (map[current.Y][current.X] == 'E')
+            return current;
+        foreach (var e in GetEdges(current))
+        {
+            if (discovered.Add((e.X, e.Y)))
+            {
+                queue.Enqueue(e);
+            }
+        }
+    }
+    return null;
+}
+
+var end = BFS();
+
+var length = 0;
+while (end.parent != null)
+{
+    length++;
+    end = end.parent;
+}
+length
+
+#!markdown
+
+Day 12 part 2
+
+#!csharp
+
+var discovered = new HashSet<(int x, int y)>();
+var queue = new Queue<Location>();
+
+var maxX = map[0].Length;
+var maxY = map.Length;
+
+int x = 0;
+int y = 0;
+var startingPoints = new Dictionary<(int x, int y), int>();
+foreach (var row in map)
+{
+    foreach (var col in row)
+    {
+        if (col == 'S' || col == 'a')
+            startingPoints[(x, y)] = 0;
+        x++;
+    }
+    y++;
+    x = 0;
+}
+
+IEnumerable<Location> GetEdges(Location node)
+{
+    var nodeValue = map[node.Y][node.X];
+    if (node.Y > 0 && (nodeValue == 'S' || (map[node.Y - 1][node.X] == 'E' ? 'z' : map[node.Y - 1][node.X]) - nodeValue <= 1))
+        yield return new(node.X, node.Y - 1, node);
+    if (node.Y < maxY - 1 && (nodeValue == 'S' || (map[node.Y + 1][node.X] == 'E' ? 'z' : map[node.Y + 1][node.X]) - nodeValue <= 1))
+        yield return new(node.X, node.Y + 1, node);
+    if (node.X > 0 && (nodeValue == 'S' || (map[node.Y][node.X - 1] == 'E' ? 'z' : map[node.Y][node.X - 1]) - nodeValue <= 1))
+        yield return new(node.X - 1, node.Y, node);
+    if (node.X < maxX - 1 && (nodeValue == 'S' || (map[node.Y][node.X + 1] == 'E' ? 'z' : map[node.Y][node.X + 1]) - nodeValue <= 1))
+        yield return new(node.X + 1, node.Y, node);
+}
+
+Location BFS(int startX, int startY)
+{
+    queue.Clear();
+    discovered.Clear();
+    queue.Enqueue(new(startX, startY, null));
+    discovered.Add((startX, startY));
+    while (queue.Any())
+    {
+        var current = queue.Dequeue();
+        if (map[current.Y][current.X] == 'E')
+            return current;
+        foreach (var e in GetEdges(current))
+        {
+            if (discovered.Add((e.X, e.Y)))
+            {
+                queue.Enqueue(e);
+            }
+        }
+    }
+    return null;
+}
+foreach (var item in startingPoints)
+{
+    var end = BFS(item.Key.x, item.Key.y);
+
+    var length = 0;
+    while (end?.parent != null)
+    {
+        length++;
+        end = end.parent;
+    }
+    startingPoints[item.Key] = length;
+}
+var result = startingPoints.Values.Where(v=>v > 0).Min();
 result
